@@ -1,0 +1,7 @@
+./.env
+/.env
+/dist
+./dist
+/node_modules
+./node_modules
+./uploadss
