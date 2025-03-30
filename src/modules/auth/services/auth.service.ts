@@ -118,7 +118,7 @@ export const login = async (
   res.cookie(
     "accessToken",
     `${process.env.ACCESS_TOKEN_START_WITH}${accessToken}`,
-    cokkiesOptions(7 * 24 * 3600000)
+    cokkiesOptions(2 * 24 * 3600000)
   );
 
   res.cookie("refreshToken", refreshToken, cokkiesOptions(7 * 24 * 3600000));
