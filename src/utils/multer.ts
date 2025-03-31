@@ -48,7 +48,7 @@ export const configureMulter = (
 
 export const multerMemory = (
   fileSize: number = 5 * 1024 * 1024,
-  allowedFileTypes: Array<string> = [...FileType.Images]
+  allowedFileTypes: Array<string> = FileType.Images
 ) => {
   const storage = multer.memoryStorage();
 

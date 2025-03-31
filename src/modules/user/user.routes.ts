@@ -11,11 +11,10 @@ import { asyncHandler } from "../../utils/errorHandling";
 import * as userServices from "./services/user.service";
 import { cokkiesSchema } from "../auth/auth.validation";
 import { isAuth } from "../../middleware/auth";
-import { configureMulter } from "../../utils/multer";
+import { multerMemory } from "../../utils/multer";
 import { changePassSchema } from "./user.validation";
 
 const router = Router();
-const upload = configureMulter();
 
 router.get(
   "/profile",
@@ -27,7 +26,7 @@ router.get(
 router.post(
   "/avatar",
   isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
-  upload.single("avatar"),
+  multerMemory().single("avatar"),
   asyncHandler(userServices.uploadImage)
 );
 
