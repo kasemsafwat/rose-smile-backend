@@ -9,16 +9,11 @@ export const sanatizeUser = (user: Iuser) => {
     firstName: user?.firstName,
     lastName: user?.lastName,
     email: user?.email,
-    age: user?.age,
     phone: user?.phone
       ? decrypt(String(user?.phone), String(process.env.SECRETKEY_CRYPTO))
       : undefined,
     role: user?.role,
     avatar: user?.avatar,
-    isConfirmed: user?.isConfirmed,
-    jobTitle: user.jobTitle,
-    socialLinks: user?.socialLinks,
-    verificationStatus: user?.verificationStatus
   };
 
   return _.omitBy(sanitized, _.isNil);

@@ -20,13 +20,13 @@ const upload = configureMulter();
 router.get(
   "/profile",
   valid(cokkiesSchema) as RequestHandler,
-  isAuth([Roles.User, Roles.Instructor, Roles.Admin]),
+  isAuth([Roles.User, Roles.SuperAdmin, Roles.Admin]),
   asyncHandler(userServices.profile)
 );
 
 router.post(
   "/avatar",
-  isAuth([Roles.Admin, Roles.Instructor, Roles.User]),
+  isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
   upload.single("avatar"),
   asyncHandler(userServices.uploadImage)
 );
@@ -34,32 +34,32 @@ router.post(
 router.put(
   "/changePass",
   valid(changePassSchema) as RequestHandler,
-  isAuth([Roles.Admin, Roles.Instructor, Roles.User]),
+  isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.changePassword)
 );
 
 router.put(
   "/userProfile",
-  isAuth([Roles.User, Roles.Instructor]),
+  isAuth([Roles.User, Roles.SuperAdmin]),
   asyncHandler(userServices.userProfile)
 );
 
 router.delete(
   "/:id",
-  isAuth([Roles.Instructor, Roles.User]),
+  isAuth([Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.deleteAccount)
 );
 
 router.post(
   "/checkPass",
   valid(changePassSchema) as RequestHandler,
-  isAuth([Roles.Instructor, Roles.User]),
+  isAuth([Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.checkPass)
 );
 
 router.post(
   "/logout",
-  isAuth([Roles.Admin, Roles.Instructor, Roles.User]),
+  isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.logout)
 );
 
