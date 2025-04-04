@@ -5,6 +5,8 @@ import userModel from "../DB/models/user.model";
 import { Types } from "mongoose";
 import { Iuser, Roles } from "../DB/interfaces/user.interface";
 import { TokenConfigration } from "../config/env";
+import { cokkiesOptions } from "../utils/cookies";
+import { TokenExpiredError } from "jsonwebtoken";
 
 declare global {
   namespace Express {
@@ -23,35 +25,105 @@ declare global {
 export const isAuth = (roles: Array<Roles>) => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { accessToken: accessTokenPrefix } = req.cookies;
+      try {
+        const { accessToken: accessTokenPrefix, refreshToken } = req.cookies;
 
-      const accessToken = accessTokenPrefix.split(
-        TokenConfigration.ACCESS_TOKEN_START_WITH || "Bearer "
-      )[1];
+        if (!accessTokenPrefix) {
+          return next(new CustomError("Access token is required", 401));
+        }
 
-      let decodedToken;
+        const accessToken = accessTokenPrefix.startsWith(
+          TokenConfigration.ACCESS_TOKEN_START_WITH || "Bearer "
+        )
+          ? accessTokenPrefix.split(
+              TokenConfigration.ACCESS_TOKEN_START_WITH || "Bearer "
+            )[1]
+          : accessTokenPrefix;
 
-      decodedToken = new TokenService(
-        TokenConfigration.ACCESS_TOKEN_SECRET as string
-      ).verifyToken(accessToken);
+        let decodedToken;
+        try {
+          decodedToken = new TokenService(
+            TokenConfigration.ACCESS_TOKEN_SECRET as string
+          ).verifyToken(accessToken);
+        } catch (error) {
+          if (!(error instanceof TokenExpiredError)) {
+            return next(error);
+          }
+        }
 
-      const { userId } = decodedToken;
+        if (decodedToken) {
+          const { userId } = decodedToken;
+          const user = await userModel.findById(new Types.ObjectId(userId), {
+            __v: 0,
+          });
 
-      const finduser = await userModel.findById(new Types.ObjectId(userId), {
-        password: 0,
-        __v: 0,
-      });
-      if (!finduser || !finduser.role) {
-        return next(new CustomError("User not found", 404));
+          if (!user || !user.role) {
+            return next(new CustomError("User not found", 404));
+          }
+
+          if (!roles.includes(user.role)) {
+            return next(new CustomError("Unauthorized user", 403));
+          }
+
+          req.user = user as Iuser;
+          return next();
+        }
+
+        // Handle expired access token: Use refresh token
+        if (!refreshToken) {
+          return next(new CustomError("Refresh token is required", 401));
+        }
+
+        let decodedRefresh;
+        try {
+          decodedRefresh = new TokenService(
+            String(TokenConfigration.REFRESH_TOKEN_SECRET)
+          ).verifyToken(refreshToken);
+        } catch (error) {
+          return next(new CustomError("Invalid refresh token", 400));
+        }
+
+        if (!decodedRefresh || !decodedRefresh.userId) {
+          return next(new CustomError("Invalid refresh token", 400));
+        }
+
+        const user = await userModel.findById(decodedRefresh.userId).lean();
+        if (!user) {
+          return next(
+            new CustomError("User not found, please login again", 400)
+          );
+        }
+
+        // Generate new tokens
+        const newAccessToken = new TokenService(
+          String(TokenConfigration.ACCESS_TOKEN_SECRET),
+          String(TokenConfigration.ACCESS_EXPIRE)
+        ).generateToken({ userId: user._id, role: user.role });
+
+        const newRefreshToken = new TokenService(
+          String(TokenConfigration.REFRESH_TOKEN_SECRET),
+          String(TokenConfigration.REFRESH_EXPIRE)
+        ).generateToken({ userId: user._id, role: user.role });
+
+        // Set new tokens in cookies
+        res.cookie(
+          "accessToken",
+          `${
+            TokenConfigration.ACCESS_TOKEN_START_WITH || "Bearer "
+          }${newAccessToken}`,
+          cokkiesOptions(10 * 24 * 3600000) // 10 days
+        );
+        res.cookie(
+          "refreshToken",
+          newRefreshToken,
+          cokkiesOptions(10 * 24 * 3600000)
+        );
+
+        req.user = user as Iuser;
+        return next();
+      } catch (error) {
+        return next(error);
       }
-
-      // chk authorized
-      if (!roles.includes(finduser?.role))
-        return next(new CustomError("Unauthorized user", 401));
-
-      req.user = finduser as Iuser;
-
-      return next();
     }
   );
 };

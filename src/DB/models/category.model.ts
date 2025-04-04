@@ -17,10 +17,8 @@ const categorySchema = new Schema<Icategory>(
       maxlength: [700, "description Must be at most 30, got {VALUE}"],
     },
     image: {
-      type: String,
-      required: true,
-      minlength: [10, "image Must be at least 3, got {VALUE}"],
-      maxlength: [3000, "image Must be at most 30, got {VALUE}"],
+      imageUrl: { type: String, required: true },
+      id: { type: String, required: true },
     },
   },
   { timestamps: true }

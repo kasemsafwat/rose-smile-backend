@@ -4,7 +4,10 @@ export interface Icategory extends Document {
   _id: Types.ObjectId;
   title: string;
   desc: string;
-  image: string;
+  image: {
+    imageUrl: string;
+    id: string;
+  };
 }
 
 export interface Iservice extends Document {

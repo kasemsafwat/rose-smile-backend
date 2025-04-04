@@ -15,23 +15,18 @@ export const register = async (
   res: Response,
   next: NextFunction
 ): Promise<void | any> => {
-  const { firstName, lastName, email, password, role } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
   const chkemail = await userModel.findOne({ email }).select("email");
   if (chkemail) return next(new CustomError("Email is Already Exist", 404));
 
   const hashpassword = await bcrypt.hash(password, Number(SALT_ROUND));
 
-  // Set verification status based on role
-  const verificationStatus = role === "user" ? "approved" : "none";
-
   const result = new userModel({
     firstName,
     lastName,
     email,
     password: hashpassword,
-    role,
-    verificationStatus,
   });
 
   const response = await result.save();
@@ -55,9 +50,9 @@ export const register = async (
     {
       to: response.email,
       subject: "Verify your email",
-      text: "Welcome to Mentora! 🎉",
+      text: "Welcome to Rose Smile! 🎉",
       html: emailTemplate,
-      message: "Mentora",
+      message: "Rose Smile",
     },
     { attempts: 1, backoff: 5000, removeOnComplete: true, removeOnFail: true }
   );
@@ -184,7 +179,6 @@ export const confirmEmail = async (
   }
 };
 
-
 export const forgetPassword = async (
   req: Request,
   res: Response,
@@ -233,5 +227,3 @@ export const forgetPassword = async (
     );
   }
 };
-
-

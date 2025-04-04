@@ -8,7 +8,7 @@ import fs from "fs";
 import path from "path";
 
 export const configureMulter = (
-  fileSize: number = 5 * 1024 * 1024,
+  fileSize: number = 7 * 1024 * 1024,
   allowedFileTypes: Array<string> = FileType.Images,
   folder: string = "uploads"
 ) => {

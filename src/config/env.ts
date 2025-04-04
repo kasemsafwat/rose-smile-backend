@@ -46,3 +46,9 @@ export const REDIS = {
   HOST: process.env.REDIS_HOST,
   PORT: Number(process.env.REDIS_PORT),
 };
+
+export const CLOUDINARY = {
+  CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  API_KEY: process.env.CLOUDINARY_API_KEY,
+  API_SECRET: process.env.CLOUDINARY_API_SECRET,
+};
