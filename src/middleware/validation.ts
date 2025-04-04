@@ -126,4 +126,20 @@ export const generalFields = {
     .string()
     .pattern(/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/)
     .messages(customMessages),
+
+  title: joi
+    .string()
+    .trim()
+    .lowercase()
+    .min(3)
+    .max(100)
+    .messages(customMessages),
+
+  desc: joi
+    .string()
+    .trim()
+    .lowercase()
+    .min(3)
+    .max(700)
+    .messages(customMessages),
 };

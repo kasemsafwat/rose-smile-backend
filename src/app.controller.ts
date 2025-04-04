@@ -14,6 +14,10 @@ const app: Application = express();
 app.use(compression({ level: 6, memLevel: 8, threshold: 0 }));
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
 app.use(
   cors({
     credentials: true,
@@ -21,7 +25,6 @@ app.use(
   })
 );
 
-app.use(express.urlencoded({ extended: true }));
 
 redis;
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));

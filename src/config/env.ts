@@ -1,3 +1,4 @@
+import { imageOptions } from "./../utils/cloudinary";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -52,3 +53,82 @@ export const CLOUDINARY = {
   API_KEY: process.env.CLOUDINARY_API_KEY,
   API_SECRET: process.env.CLOUDINARY_API_SECRET,
 };
+
+export const CLOUDINARYOPTIONS = {
+  backgroundLarge: {
+    width: 1920,
+    height: 1080,
+    crop: "fill",
+    quality: "auto:best",
+    format: "auto",
+    flags: "progressive",
+  } as imageOptions,
+
+  heroBanner: {
+    width: 1280,
+    height: 720,
+    crop: "limit",
+    quality: "auto:good",
+    format: "auto",
+    flags: "progressive",
+    effect: "improve",
+  } as imageOptions,
+
+  thumbnailSmall: {
+    width: 150,
+    height: 100,
+    crop: "thumb",
+    quality: "auto:low",
+    format: "auto",
+    flags: "progressive",
+  } as imageOptions,
+
+  thumbnailMedium: {
+    width: 300,
+    height: 200,
+    crop: "thumb",
+    quality: "auto:good",
+    format: "auto",
+    flags: "progressive",
+  } as imageOptions,
+
+  logoSmall: {
+    width: 100,
+    height: 100,
+    crop: "thumb",
+    quality: "auto:low",
+    format: "auto",
+    gravity: "face",
+    radius: "max",
+  } as imageOptions,
+
+  socialIcon: {
+    width: 32,
+    height: 32,
+    crop: "thumb",
+    quality: "auto:low",
+    format: "auto",
+    gravity: "face",
+    radius: "max",
+  } as imageOptions,
+
+  profilePicture: {
+    width: 400,
+    height: 400,
+    crop: "fill",
+    quality: "auto:good",
+    format: "auto",
+    gravity: "face",
+    radius: "max",
+  } as imageOptions,
+
+  cardImage: {
+    width: 600,
+    height: 400,
+    crop: "fill",
+    quality: "auto:good",
+    format: "auto",
+    flags: "progressive",
+  } as imageOptions,
+};
+

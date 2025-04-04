@@ -4,4 +4,5 @@
 ./dist
 /node_modules
 ./node_modules
-./uploadss
+./uploads
+/uploads
