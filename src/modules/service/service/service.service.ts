@@ -67,6 +67,11 @@ export const getServiceById = async (
   // if service not found
   if (!service) return next(new CustomError("Service not found", 404));
 
+  const versions = await new CloudinaryService().imageVersions(
+    service.image?.id
+  );
+  service.image = { ...service.image, ...versions };
+
   //response
   res.status(200).json({
     message: "Service fetched successfully",
@@ -210,14 +215,17 @@ export const getServices = async (
   ]);
 
   // add image versions
-  for await (const service of services) {
-    if (service.image) {
-      const versions = await new CloudinaryService().imageVersions(
-        service.image?.id
-      );
-      service.image = { ...service.image, ...versions };
-    }
-  }
+  const updatedServices = await Promise.all(
+    services.map(async (service) => {
+      if (service.image) {
+        const versions = await new CloudinaryService().imageVersions(
+          service.image.id
+        );
+        return { ...service, image: { ...service.image, ...versions } };
+      }
+      return service;
+    })
+  );
 
   return res.status(200).json({
     message: "services fetched successfully",
@@ -225,7 +233,7 @@ export const getServices = async (
     totalServices: total,
     totalPages: Math.ceil(total / Number(size || 21)),
     success: true,
-    services: services,
+    services: updatedServices,
   });
 };
 
