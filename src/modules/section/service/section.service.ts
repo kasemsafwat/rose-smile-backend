@@ -2,12 +2,12 @@ import fs from "fs";
 import { NextFunction, Request, Response } from "express";
 import { CustomError } from "../../../utils/errorHandling";
 import { CloudinaryService } from "../../../utils/cloudinary";
-import categoryModel from "../../../DB/models/category.model";
+import sectionModel from "../../../DB/models/section.model";
 import { CLOUDINARYOPTIONS } from "../../../config/env";
 import ApiPipeline from "../../../utils/apiFeacture";
 import { forEach, update } from "lodash";
 
-export const addCategory = async (
+export const addsection = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -18,61 +18,61 @@ export const addCategory = async (
     return next(new CustomError("Image not provided", 400));
   }
 
-  const category = new categoryModel({
+  const section = new sectionModel({
     title,
     desc,
   });
 
   const response = await new CloudinaryService().uploadFile(
     req.file.path,
-    `category/${category._id}`
+    `section/${section._id}`
   );
 
   if (!response) {
     return next(new CustomError("Failed to upload image", 500));
   }
 
-  category.image.imageUrl = response.secure_url;
-  category.image.id = response.public_id;
+  section.image.imageUrl = response.secure_url;
+  section.image.id = response.public_id;
 
-  // Save the category to the database
-  await category.save();
+  // Save the section to the database
+  await section.save();
 
   return res.status(201).json({
-    message: "Category created successfully",
-    category,
+    message: "section created successfully",
+    section,
   });
 };
 
-export const getCategoryById = async (
+export const getsectionById = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.params;
 
-  const category = await categoryModel.findById(id).lean();
-  if (!category) {
-    return next(new CustomError("category not found", 404));
+  const section = await sectionModel.findById(id).lean();
+  if (!section) {
+    return next(new CustomError("section not found", 404));
   }
 
   const versions = await new CloudinaryService().imageVersions(
-    category.image?.id
+    section.image?.id
   );
-  category.image = { ...category.image, ...versions };
+  section.image = { ...section.image, ...versions };
 
   return res.status(200).json({
-    message: "Category fetched successfully",
+    message: "section fetched successfully",
     statusCode: 200,
     success: true,
-    category,
+    section,
   });
 };
 
-// search in categorys
+// search in sections
 const allowSearchFields = ["title", "desc"];
 const defaultFields = ["title", "desc", "image"];
-export const searchCategory = async (
+export const searchsection = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -94,37 +94,37 @@ export const searchCategory = async (
     })
     .build();
 
-  const [total, categories] = await Promise.all([
-    categoryModel.countDocuments().lean(),
-    categoryModel.aggregate(pipeline).exec(),
+  const [total, sections] = await Promise.all([
+    sectionModel.countDocuments().lean(),
+    sectionModel.aggregate(pipeline).exec(),
   ]);
 
   // add image versions
-  for await (const category of categories) {
-    if (category.image) {
+  for await (const section of sections) {
+    if (section.image) {
       const versions = await new CloudinaryService().imageVersions(
-        category.image?.id
+        section.image?.id
       );
-      category.image = { ...category.image, ...versions };
+      section.image = { ...section.image, ...versions };
     }
   }
 
   return res.status(200).json({
-    message: "categories fetched successfully",
+    message: "sections fetched successfully",
     statusCode: 200,
-    totalcategories: total,
+    totalsections: total,
     totalPages: Math.ceil(total / Number(size || 21)),
     success: true,
-    categories: categories,
+    sections: sections,
   });
 };
 
-export const updateCategory = async (
+export const updatesection = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { categoryId } = req.query;
+  const { sectionId } = req.query;
   const { title, desc } = req.body;
 
   if (!title && !desc && !req.file) {
@@ -134,15 +134,12 @@ export const updateCategory = async (
   const updatedFields: any = {};
 
   if (req.file) {
-    const category = await categoryModel.findById(categoryId).lean();
-    if (!category) {
-      return next(new CustomError("Category not found", 404));
+    const section = await sectionModel.findById(sectionId).lean();
+    if (!section) {
+      return next(new CustomError("section not found", 404));
     }
     const { metadata, secure_url, public_id } =
-      await new CloudinaryService().updateFile(
-        category.image.id,
-        req.file.path
-      );
+      await new CloudinaryService().updateFile(section.image.id, req.file.path);
     const image: any = {};
     image.imageUrl = secure_url;
     image.id = public_id;
@@ -152,49 +149,49 @@ export const updateCategory = async (
   if (title) updatedFields.title = title;
   if (desc) updatedFields.desc = desc;
 
-  const updatedCategory = await categoryModel.findByIdAndUpdate(
-    categoryId,
+  const updatedsection = await sectionModel.findByIdAndUpdate(
+    sectionId,
     { $set: updatedFields },
     { new: true, runValidators: true }
   );
 
-  if (!updatedCategory) {
-    return next(new CustomError("Category not found", 404));
+  if (!updatedsection) {
+    return next(new CustomError("section not found", 404));
   }
 
   return res.status(200).json({
-    message: "Category updated successfully",
+    message: "section updated successfully",
     statusCode: 200,
     success: true,
-    category: updatedCategory,
+    section: updatedsection,
   });
 };
 
-export const deleteCategory = async (
+export const deletesection = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { id } = req.params;
 
-  const category = await categoryModel.findByIdAndDelete(
+  const section = await sectionModel.findByIdAndDelete(
     { _id: id },
     { new: true }
   );
 
-  if (!category) {
-    return next(new CustomError("category not found", 404));
+  if (!section) {
+    return next(new CustomError("section not found", 404));
   }
 
-  new CloudinaryService().deleteFile(category.image.id).then((result) => {
+  new CloudinaryService().deleteFile(section.image.id).then((result) => {
     console.log("deleted successfully", result);
   });
 
   return res.status(200).json({
-    message: "Category deleted successfully",
+    message: "section deleted successfully",
     statusCode: 200,
     success: true,
-    category,
+    section,
   });
 };
 

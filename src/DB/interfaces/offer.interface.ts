@@ -14,6 +14,6 @@ export interface Ioffer extends Document {
   desc: string;
   display: Boolean;
   discount?: number;
-  type: "category" | "service";
+  type: "section" | "service";
   reference: Types.ObjectId;
 }

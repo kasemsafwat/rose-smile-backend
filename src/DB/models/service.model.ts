@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { Iservice } from "../interfaces/category.interface";
+import { Iservice } from "../interfaces/section.interface";
 
 const serviceSchema = new Schema<Iservice>(
   {
@@ -22,9 +22,9 @@ const serviceSchema = new Schema<Iservice>(
       minlength: [10, "images Must be at least 3, got {VALUE}"],
       maxlength: [3000, "images Must be at most 30, got {VALUE}"],
     },
-    categoryId: {
+    sectionId: {
       type: Schema.Types.ObjectId,
-      ref: "category",
+      ref: "section",
       required: true,
     },
   },

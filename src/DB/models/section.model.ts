@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
-import { Icategory } from "../interfaces/category.interface";
+import { Isection } from "../interfaces/section.interface";
 
-const categorySchema = new Schema<Icategory>(
+const sectionSchema = new Schema<Isection>(
   {
     title: {
       type: String,
@@ -24,5 +24,5 @@ const categorySchema = new Schema<Icategory>(
   { timestamps: true }
 );
 
-const categoryModel = mongoose.model<Icategory>("category", categorySchema);
-export default categoryModel;
+const sectionModel = mongoose.model<Isection>("section", sectionSchema);
+export default sectionModel;

@@ -1,7 +1,7 @@
 import joi from "joi";
 import { generalFields } from "../../middleware/validation";
 
-export const addcategorySchema = {
+export const addsectionSchema = {
   body: joi
     .object({
       title: generalFields.title.required(),
@@ -10,7 +10,7 @@ export const addcategorySchema = {
     .required(),
 };
 
-export const updatecategorySchema = {
+export const updatesectionSchema = {
   body: joi
     .object({
       title: generalFields.title.optional(),
@@ -20,12 +20,12 @@ export const updatecategorySchema = {
 
   query: joi
     .object({
-      categoryId: generalFields._id.required(),
+      sectionId: generalFields._id.required(),
     })
     .required(),
 };
 
-export const categoryIdSchema = {
+export const sectionIdSchema = {
   params: joi
     .object({
       id: generalFields._id.required(),

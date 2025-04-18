@@ -1,7 +1,8 @@
 import nodemailer, { Transporter } from "nodemailer";
-import { EmailSendConfigration } from "../config/env";
+import Queue from "bull";
+import { EmailSendConfigration, REDIS } from "../config/env";
+import userModel from "../DB/models/user.model";
 import { IEmail } from "../DB/interfaces/Email.interface";
-
 
 class EmailService implements IEmail {
   from: string;
@@ -27,7 +28,7 @@ class EmailService implements IEmail {
     this.message = message;
   }
 
-  public static createTransporter(): Transporter {
+  private static createTransporter(): Transporter {
     if (!this.transporterInstance) {
       this.transporterInstance = nodemailer.createTransport({
         host: "smtp.gmail.com",
@@ -62,4 +63,49 @@ class EmailService implements IEmail {
   }
 }
 
-export default EmailService;
+// ============ Queue Setup =============
+const emailQueue = new Queue("emailQueue", {
+  redis: {
+    host: REDIS.HOST,
+    port: REDIS.PORT,
+    maxRetriesPerRequest: null,
+    retryStrategy(times) {
+      return Math.min(times * 100, 3000);
+    },
+  },
+});
+
+// ============ Queue Processor ==========
+emailQueue.process(async (job) => {
+  try {
+    console.log(`Processing email for: ${job.data.to}`);
+    const emailInstance = new EmailService(job.data);
+    const isSend = await emailInstance.send();
+
+    if (!isSend) {
+      throw new Error(`Failed to send email to: ${job.data.to}`);
+    }
+
+    console.log("Email sent successfully!");
+  } catch (error) {
+    await userModel.deleteOne({ email: job.data.to });
+    console.error("Error sending email via queue:", error);
+  }
+});
+
+emailQueue.on("failed", (job, error) => {
+  console.error(`Job failed for email: ${job.data.to}`, error);
+});
+
+// ============ Helper Functions ==========
+export const sendEmailNow = async (emailData: IEmail): Promise<boolean> => {
+  const emailInstance = new EmailService(emailData);
+  return await emailInstance.send();
+};
+
+export const addEmailToQueue = async (emailData: IEmail): Promise<void> => {
+  await emailQueue.add(emailData);
+};
+
+// ============ Export =============
+export { EmailService, emailQueue };

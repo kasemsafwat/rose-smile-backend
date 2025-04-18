@@ -28,8 +28,8 @@ export const isAuth = (roles: Array<Roles>) => {
       try {
         const { accessToken: accessTokenPrefix, refreshToken } = req.cookies;
 
-        if (!accessTokenPrefix) {
-          return next(new CustomError("Access token is required", 401));
+        if (!accessTokenPrefix || !refreshToken) {
+          return next(new CustomError("Plz login first", 401));
         }
 
         const accessToken = accessTokenPrefix.startsWith(

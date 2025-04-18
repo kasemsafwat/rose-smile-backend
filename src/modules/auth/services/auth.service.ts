@@ -5,7 +5,7 @@ import bcrypt, { compare } from "bcryptjs";
 import { sanatizeUser } from "../../../utils/sanatize.data";
 import { TokenService } from "../../../utils/tokens";
 import { TokenConfigration, SALT_ROUND } from "../../../config/env";
-import emailQueue from "../../../utils/email.Queue";
+import { emailQueue, addEmailToQueue } from "../../../utils/Email.servise";
 import { cokkiesOptions } from "../../../utils/cookies";
 import fs from "fs";
 import path from "path";
@@ -46,16 +46,13 @@ export const register = async (
   let emailTemplate = fs.readFileSync(emailTemplatePath, "utf-8");
   emailTemplate = emailTemplate.replace("{{link}}", link);
 
-  await emailQueue.add(
-    {
-      to: response.email,
-      subject: "Verify your email",
-      text: "Welcome to Rose Smile! 🎉",
-      html: emailTemplate,
-      message: "Rose Smile",
-    },
-    { attempts: 1, backoff: 5000, removeOnComplete: true, removeOnFail: true }
-  );
+  await addEmailToQueue({
+    to: response.email as string,
+    subject: "Verify your email",
+    text: "Welcome to Rose Smile! 🎉",
+    html: emailTemplate,
+    message: "Rose Smile",
+  });
 
   return res.status(201).json({
     message: "Please check your email for verification",

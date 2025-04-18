@@ -30,8 +30,7 @@ const offerSectionSchema = new Schema<IofferSection>(
   { timestamps: true }
 );
 
-
-// single offer 
+// single offer
 const offerSchema = new Schema<Ioffer>(
   {
     title: {
@@ -53,7 +52,7 @@ const offerSchema = new Schema<Ioffer>(
     },
     type: {
       type: String,
-      enum: ["category", "service"],
+      enum: ["section", "service"],
       required: true,
     },
     reference: {

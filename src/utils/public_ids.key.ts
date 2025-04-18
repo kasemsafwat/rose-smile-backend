@@ -21,7 +21,7 @@ export default class AwsKeyService {
     return this.generateKey("services", randomStr);
   }
 
-  category(randomStr?: string) {
-    return this.generateKey("categories", randomStr);
+  section(randomStr?: string) {
+    return this.generateKey("sections", randomStr);
   }
 }

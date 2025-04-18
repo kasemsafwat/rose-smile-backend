@@ -25,6 +25,7 @@ app.use(
   })
 );
 
+console.log(process.cwd());
 
 redis;
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
