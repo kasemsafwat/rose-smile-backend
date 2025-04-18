@@ -30,8 +30,8 @@ export const createService = async (
 
   const { secure_url, public_id } = await new CloudinaryService().uploadFile(
     req.file.path,
-    `service/${service._id}`
-  );
+      `service/${service._id}`
+    );
 
   service.image = { url: secure_url, id: public_id };
 
