@@ -8,4 +8,5 @@
 /uploads
 /uploads/*
 ./.env.test
+/.env.test
 /.env.local
