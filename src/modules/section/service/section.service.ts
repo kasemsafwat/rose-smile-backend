@@ -183,7 +183,7 @@ export const deletesection = async (
     return next(new CustomError("section not found", 404));
   }
 
-  new CloudinaryService().deleteFile(section.image.id).then((result) => {
+  await new CloudinaryService().deleteFile(section.image.id).then((result) => {
     console.log("deleted successfully", result);
   });
 

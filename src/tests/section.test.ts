@@ -27,11 +27,7 @@ beforeAll(async () => {
     password: "MH2020salah",
   });
 
-  console.log("Login Response:", {
-    status: loginRes.status,
-    headers: loginRes.headers,
-    body: loginRes.body,
-  });
+
 
   if (loginRes.status !== 200 || !loginRes.headers["set-cookie"]) {
     throw new Error("Failed to login: " + JSON.stringify(loginRes.body));
@@ -68,11 +64,6 @@ describe("Section API Tests", () => {
         .field("title", "test section")
         .field("desc", "test description");
 
-      console.log("Create Section Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
 
       expect(res.status).toBe(201);
       expect(res.body).toHaveProperty("section");
@@ -92,11 +83,7 @@ describe("Section API Tests", () => {
           desc: "test description",
         });
 
-      console.log("Create Section Without Image Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+  
 
       expect(res.status).toBe(400);
     });
@@ -113,11 +100,7 @@ describe("Section API Tests", () => {
         .get(`/api/v1/section/${createdId}`)
         .set("Cookie", cookies);
 
-      console.log("Get Section Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body.section._id).toBe(createdId);
@@ -129,11 +112,7 @@ describe("Section API Tests", () => {
         .get("/api/v1/section/6802624a669ef3d4c51ddbef")
         .set("Cookie", cookies);
 
-      console.log("Get Non-Existent Section Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(404);
     });
@@ -146,11 +125,7 @@ describe("Section API Tests", () => {
         .get("/api/v1/section?page=1&size=10&search=test")
         .set("Cookie", cookies);
 
-      console.log("Search Sections Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("sections");
@@ -168,11 +143,7 @@ describe("Section API Tests", () => {
         .get("/api/v1/section?sort=-createdAt:asc")
         .set("Cookie", cookies);
 
-      console.log("Search Sections with Sorting Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("sections");
@@ -197,11 +168,7 @@ describe("Section API Tests", () => {
         .attach("image", testImagePath)
         .field("title", "updated section");
 
-      console.log("Update Section with Image Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body.section.title).toBe("updated section");
@@ -220,11 +187,7 @@ describe("Section API Tests", () => {
           desc: "updated description",
         });
 
-      console.log("Update Section without Image Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body.section.desc).toBe("updated description");
@@ -242,11 +205,7 @@ describe("Section API Tests", () => {
         .delete(`/api/v1/section/${createdId}`)
         .set("Cookie", cookies);
 
-      console.log("Delete Section Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("section deleted successfully");
@@ -258,11 +217,7 @@ describe("Section API Tests", () => {
         .delete("/api/v1/section/6802624a669ef3d4c51ddbef")
         .set("Cookie", cookies);
 
-      console.log("Delete Non-Existent Section Response:", {
-        status: res.status,
-        headers: res.headers,
-        body: res.body,
-      });
+
 
       expect(res.status).toBe(404);
     });
