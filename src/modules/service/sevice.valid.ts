@@ -5,13 +5,15 @@ export const addServiceSchema = {
   body: joi.object({
     title: joi.string().required(),
     desc: joi.string().required(),
+    sectionId: generalFields._id.required(),
   }),
 };
 
 export const updateServiceSchema = {
   body: joi.object({
-    title: joi.string().required(),
-    desc: joi.string().required(),
+    title: joi.string().trim().min(1).max(2000).optional(),
+    desc: joi.string().trim().min(1).max(2000).optional(),
+    sectionId: generalFields._id,
   }),
   params: joi.object({
     id: joi.string().required(),
@@ -37,5 +39,28 @@ export const getServicesSchema = {
     sort: generalFields.sort,
     search: generalFields.search,
     select: generalFields.select,
+    id: generalFields._id,
+    sectionId: generalFields._id,
+  }),
+};
+
+export const addServiceImagesSchema = {
+  params: joi.object({
+    id: joi.string().required(),
+  }),
+};
+
+export const updateServiceImageSchema = {
+  params: joi.object({
+    id: generalFields._id.required(),
+  }),
+};
+
+export const deleteServiceImageSchema = {
+  params: joi.object({
+    id: joi.string().required(),
+  }),
+  body: joi.object({
+    imageIds: joi.array().items(joi.string()).required(),
   }),
 };

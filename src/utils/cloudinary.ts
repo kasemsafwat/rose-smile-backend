@@ -13,6 +13,13 @@ export interface imageOptions {
   gravity?: string;
   radius?: string;
 }
+
+export interface CloudinaryResponse extends UploadApiResponse {
+  secure_url: string;
+  public_id: string;
+  metadata: object;
+}
+
 export class CloudinaryService {
   constructor() {
     cloudinary.config({
@@ -33,15 +40,17 @@ export class CloudinaryService {
         transformation: [setting],
       });
 
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting local file:", err.message);
-        } else {
-          console.log("Local file deleted successfully");
-        }
-      });
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Error deleting local file:", err.message);
+          } else {
+            console.log("Local file deleted successfully");
+          }
+        });
+      }
 
-      return result;
+      return result as CloudinaryResponse;
     } catch (error) {
       throw new Error(`Cloudinary Upload Error: ${(error as Error).message}`);
     }
@@ -88,15 +97,15 @@ export class CloudinaryService {
         throw new Error("Failed to upload image to Cloudinary");
       }
 
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting local file:", err.message);
-        } else {
-          console.log("Local file deleted successfully");
-        }
-      });
+      if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Error deleting local file:", err.message);
+          }
+        });
+      }
 
-      return result;
+      return result as CloudinaryResponse;
     } catch (error) {
       throw new Error(`Cloudinary Update Error: ${(error as Error).message}`);
     }

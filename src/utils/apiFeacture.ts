@@ -24,6 +24,7 @@ export type LookupParams = {
   isArray?: boolean;
   searchFields?: string[];
   searchTerm?: string;
+  matchFields?: object;
 };
 
 export type ProjectionParams = {
@@ -95,12 +96,30 @@ export default class ApiPipeline {
       foreignField: params.foreignField,
       as: params.as,
     };
+    // Build match stage (if any)
+    let matchStage: any = {};
+
+    if (params.matchFields) {
+      matchStage = { ...params.matchFields };
+    }
 
     if (params.searchFields && params.searchTerm) {
       const searchConditions = params.searchFields.map((field) => ({
         [field]: { $regex: params.searchTerm, $options: "i" },
       }));
-      lookupStage.pipeline = [{ $match: { $or: searchConditions } }];
+
+      if (matchStage.$or) {
+        // Merge existing $or with new search conditions (optional case)
+        matchStage.$and = [{ $or: matchStage.$or }, { $or: searchConditions }];
+        delete matchStage.$or;
+      } else {
+        matchStage.$or = searchConditions;
+      }
+    }
+
+    if (Object.keys(matchStage).length > 0) {
+      lookupStage.pipeline = lookupStage.pipeline || [];
+      lookupStage.pipeline.push({ $match: matchStage });
     }
 
     if (projectFields) {

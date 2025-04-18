@@ -14,13 +14,14 @@ const serviceSchema = new Schema<Iservice>(
       type: String,
       required: true,
       minlength: [3, "description Must be at least 3, got {VALUE}"],
-      maxlength: [700, "description Must be at most 30, got {VALUE}"],
+      maxlength: [7000, "description Must be at most 30, got {VALUE}"],
     },
-    images: {
-      type: [String],
+    image: {
+      type: {
+        url: String,
+        id: String,
+      },
       required: true,
-      minlength: [10, "images Must be at least 3, got {VALUE}"],
-      maxlength: [3000, "images Must be at most 30, got {VALUE}"],
     },
     sectionId: {
       type: Schema.Types.ObjectId,

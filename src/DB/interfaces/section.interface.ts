@@ -22,6 +22,9 @@ export interface Iservice extends Document {
   _id: Types.ObjectId;
   title: string;
   desc: string;
-  images: Array<string>;
+  image: {
+    url: string;
+    id: string;
+  };
   sectionId: Types.ObjectId;
 }
