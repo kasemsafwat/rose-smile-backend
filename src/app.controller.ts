@@ -21,7 +21,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     credentials: true,
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "https://rose-smile.vercel.app",
+      "https://rose-smile.vercel.app/",
+      "http://rose-smile.vercel.app/",
+    ],
   })
 );
 
