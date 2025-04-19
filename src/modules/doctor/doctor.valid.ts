@@ -22,3 +22,9 @@ export const updateDoctorSchema = {
     doctorId: joi.string().required(),
   }),
 };
+
+export const DoctorIdSchema = {
+  params: joi.object({
+    doctorId: joi.string().required(),
+  }),
+};
