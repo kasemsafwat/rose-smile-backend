@@ -86,8 +86,8 @@ export const CLOUDINARYOPTIONS = {
   thumbnailMedium: {
     width: 300,
     height: 200,
-    crop: "thumb",
-    quality: "auto:good",
+    crop: "limit",
+    quality: "auto:eco",
     format: "auto",
     flags: "progressive",
   } as imageOptions,
@@ -125,10 +125,9 @@ export const CLOUDINARYOPTIONS = {
   cardImage: {
     width: 600,
     height: 400,
-    crop: "fill",
-    quality: "auto:good",
+    crop: "limit",
+    quality: "auto:eco",
     format: "auto",
     flags: "progressive",
   } as imageOptions,
 };
-
