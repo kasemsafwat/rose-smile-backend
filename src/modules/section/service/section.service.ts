@@ -51,7 +51,13 @@ export const getsectionById = async (
 ) => {
   const { id } = req.params;
 
-  const section = await sectionModel.findById(id).lean();
+  const section = await sectionModel
+    .findById(id)
+    .populate({
+      path: "services",
+      select: "title desc image -sectionId",
+    })
+    .lean();
   if (!section) {
     return next(new CustomError("section not found", 404));
   }

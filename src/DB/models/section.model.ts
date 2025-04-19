@@ -24,5 +24,15 @@ const sectionSchema = new Schema<Isection>(
   { timestamps: true }
 );
 
+sectionSchema.virtual("services", {
+  ref: "service",
+  localField: "_id",
+  foreignField: "sectionId",
+});
+
+// Ensure virtual fields are included when converting documents to JSON or Objects
+sectionSchema.set("toObject", { virtuals: true });
+sectionSchema.set("toJSON", { virtuals: true });
+
 const sectionModel = mongoose.model<Isection>("section", sectionSchema);
 export default sectionModel;
