@@ -9,6 +9,6 @@ router.use("/auth", authRouter);
 router.use("/user", userRouter);
 router.use("/section", sectionRouter);
 router.use("/service", serviceRouter);
-router.use("/offers", offersRouter);
+router.use("/offer", offersRouter);
 
 export default router;

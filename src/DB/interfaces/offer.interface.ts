@@ -4,16 +4,18 @@ export interface IofferSection extends Document {
   _id?: Types.ObjectId;
   title: string;
   desc: string;
-  image: string;
   offers: Array<Types.ObjectId>;
 }
 
 export interface Ioffer extends Document {
   _id?: Types.ObjectId;
   title: string;
+  image: {
+    url: string;
+    id: string;
+  };
   desc: string;
   display: Boolean;
-  discount?: number;
   type: "section" | "service";
   reference: Types.ObjectId;
 }

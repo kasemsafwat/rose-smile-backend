@@ -100,14 +100,17 @@ export const searchsection = async (
   ]);
 
   // add image versions
-  for await (const section of sections) {
-    if (section.image) {
-      const versions = await new CloudinaryService().imageVersions(
-        section.image?.id
-      );
-      section.image = { ...section.image, ...versions };
-    }
-  }
+  const updatedSections = await Promise.all(
+    sections.map(async (section) => {
+      if (section.image) {
+        const versions = await new CloudinaryService().imageVersions(
+          section.image.id
+        );
+        return { ...section, image: { ...section.image, ...versions } };
+      }
+      return section;
+    })
+  );
 
   return res.status(200).json({
     message: "sections fetched successfully",
@@ -115,7 +118,7 @@ export const searchsection = async (
     totalsections: total,
     totalPages: Math.ceil(total / Number(size || 21)),
     success: true,
-    sections: sections,
+    sections: updatedSections,
   });
 };
 

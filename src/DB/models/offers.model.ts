@@ -10,18 +10,6 @@ const offerSectionSchema = new Schema<IofferSection>(
       minlength: [3, "title Must be at least 3, got {VALUE}"],
       maxlength: [100, "title Must be at most 30, got {VALUE}"],
     },
-    desc: {
-      type: String,
-      required: false,
-      minlength: [3, "description Must be at least 3, got {VALUE}"],
-      maxlength: [700, "description Must be at most 30, got {VALUE}"],
-    },
-    image: {
-      type: String,
-      required: true,
-      minlength: [10, "image Must be at least 3, got {VALUE}"],
-      maxlength: [3000, "image Must be at most 30, got {VALUE}"],
-    },
     offers: {
       type: [Schema.Types.ObjectId],
       required: true,
@@ -37,13 +25,20 @@ const offerSchema = new Schema<Ioffer>(
       type: String,
       required: true,
       minlength: [3, "title Must be at least 3, got {VALUE}"],
-      maxlength: [100, "title Must be at most 30, got {VALUE}"],
+      maxlength: [1000, "title Must be at most 1000, got {VALUE}"],
     },
     desc: {
       type: String,
-      required: true,
+      required: false,
       minlength: [3, "description Must be at least 3, got {VALUE}"],
-      maxlength: [700, "description Must be at most 30, got {VALUE}"],
+      maxlength: [7000, "description Must be at most 7000, got {VALUE}"],
+    },
+    image: {
+      type: {
+        url: { type: String, required: true },
+        id: { type: String, required: true },
+      },
+      required: true,
     },
     display: {
       type: Boolean,
@@ -63,6 +58,7 @@ const offerSchema = new Schema<Ioffer>(
   },
   { timestamps: true }
 );
+
 const offerSectionModel = mongoose.model<IofferSection>(
   "offersection",
   offerSectionSchema
