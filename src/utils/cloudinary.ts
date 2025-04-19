@@ -37,7 +37,8 @@ export class CloudinaryService {
     try {
       const result = await cloudinary.uploader.upload(filePath, {
         folder,
-        transformation: [setting],
+        eager: [setting],
+        resource_type: "image",
       });
 
       if (fs.existsSync(filePath)) {

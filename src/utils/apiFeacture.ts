@@ -1,4 +1,4 @@
-import { Types, PipelineStage } from "mongoose";
+import mongoose, { Types, PipelineStage } from "mongoose";
 
 export function paginate(page: number, size: number) {
   if (size > 23) {
@@ -45,6 +45,19 @@ export default class ApiPipeline {
     this.pipeline = [];
   }
 
+  searchIds(field: any, ids: Array<mongoose.Types.ObjectId>) {
+    if (field && ids) {
+      this.pipeline.push({
+        $match: {
+          [field]: {
+            $in: ids.map((id) => new mongoose.Types.ObjectId(id)),
+          },
+        },
+      });
+    }
+
+    return this;
+  }
   match(params: MatchParams): this {
     const { fields, search, op } = params;
     if (!search || search == "") return this;

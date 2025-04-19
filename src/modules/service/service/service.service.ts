@@ -7,6 +7,7 @@ import {
 } from "../../../utils/cloudinary";
 import sectionModel from "../../../DB/models/section.model";
 import ApiPipeline from "../../../utils/apiFeacture";
+import mongoose from "mongoose";
 
 export const createService = async (
   req: Request,
@@ -30,8 +31,8 @@ export const createService = async (
 
   const { secure_url, public_id } = await new CloudinaryService().uploadFile(
     req.file.path,
-      `service/${service._id}`
-    );
+    `service/${service._id}`
+  );
 
   service.image = { url: secure_url, id: public_id };
 
@@ -179,9 +180,13 @@ export const getServices = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { page, size, search, sort, select } = req.query;
+  const { page, size, search, sort, select, sectionIds } = req.query;
 
   const pipeline = new ApiPipeline()
+    .searchIds(
+      "sectionId",
+      sectionIds as unknown as Array<mongoose.Types.ObjectId>
+    )
     .match({
       fields: allowSearchFields,
       search: search?.toString() || "",

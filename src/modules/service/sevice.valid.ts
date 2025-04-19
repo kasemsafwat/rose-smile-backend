@@ -40,7 +40,11 @@ export const getServicesSchema = {
     search: generalFields.search,
     select: generalFields.select,
     id: generalFields._id,
-    sectionId: generalFields._id,
+    sectionIds: joi
+      .alternatives()
+      .try(generalFields._id, joi.array().items(generalFields._id))
+      .optional()
+      .custom((value) => [].concat(value), "Convert single value to array"),
   }),
 };
 
