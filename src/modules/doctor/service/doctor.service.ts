@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../../../utils/errorHandling';
 import { doctorModel } from '../../../DB/models/doctor.model';
 import { CloudinaryService } from '../../../utils/cloudinary';
+import ApiPipeline from '../../../utils/apiFeacture';
 
 export default class Doctor {
   static async addDoctor(req: Request, res: Response, next: NextFunction) {
@@ -105,9 +106,77 @@ export default class Doctor {
     });
   }
 
-  // static async deleteDoctor(req: Request, res: Response, next: NextFunction) {}
+  static async deleteDoctor(req: Request, res: Response, next: NextFunction) {
+    const { doctorId } = req.params;
 
-  // static async getAllDoctors(req: Request, res: Response, next: NextFunction) {}
+    const doctor = await doctorModel.findByIdAndDelete(doctorId);
+    if (!doctor) {
+      return next(new CustomError('Doctor not found', 404));
+    }
 
-  // static async getDoctor(req: Request, res: Response, next: NextFunction) {}
+    await new CloudinaryService().deleteFile(doctor.image.id);
+
+    return res.status(200).json({
+      message: 'Doctor deleted successfully',
+      success: true,
+      statusCode: 200,
+    });
+  }
+
+  static allowSearchFields = ['name', 'specialization'];
+  static defaultFields = [
+    'name',
+    'phone_whatsapp',
+    'image',
+    'specialization',
+    'description',
+  ];
+  static async getAllDoctors(req: Request, res: Response, next: NextFunction) {
+    const { page, size, search, sort, select } = req.query;
+
+    const pipeline = new ApiPipeline()
+      .match({
+        fields: Doctor.allowSearchFields,
+        search: search?.toString() || '',
+        op: '$or',
+      })
+      .sort(sort?.toString() || '')
+      .paginate(Number(page) || 1, Number(size) || 100)
+      .projection({
+        allowFields: Doctor.defaultFields,
+        defaultFields: Doctor.defaultFields,
+        select: select?.toString() || '',
+      })
+      .build();
+
+    const [total, doctors] = await Promise.all([
+      doctorModel.countDocuments({}).lean(),
+      doctorModel.aggregate(pipeline).exec(),
+    ]);
+
+    return res.status(200).json({
+      message: 'Doctors retrieved successfully',
+      success: true,
+      statusCode: 200,
+      totalDoctors: total,
+      totalPages: Math.ceil(total / Number(size || 21)),
+      doctors,
+    });
+  }
+
+  static async getDoctorById(req: Request, res: Response, next: NextFunction) {
+    const { doctorId } = req.params;
+
+    const doctor = await doctorModel.findById(doctorId);
+    if (!doctor) {
+      return next(new CustomError('Doctor not found', 404));
+    }
+
+    return res.status(200).json({
+      message: 'Doctor retrieved successfully',
+      success: true,
+      statusCode: 200,
+      doctor,
+    });
+  }
 }
