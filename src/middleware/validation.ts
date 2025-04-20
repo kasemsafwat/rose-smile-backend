@@ -1,6 +1,7 @@
 import joi, { Schema } from "joi";
 import { Request, Response, NextFunction } from "express";
 import { Types, isValidObjectId } from "mongoose";
+import { PhoneNumberUtil } from "google-libphonenumber";
 
 type ReqKey = "body" | "params" | "query" | "headers" | "cookies";
 const req_FE: ReqKey[] = ["body", "params", "query", "headers", "cookies"];
@@ -46,6 +47,21 @@ const validateObjectId = (value: string, helper: any) => {
   return isValidObjectId(value) ? value : helper.message("Invalid {#label}");
 };
 
+//=============================== Validation for phone number =====================
+
+export const validatePhoneNumber = (value: string, helper: any) => {
+  try {
+    const phoneUtil = PhoneNumberUtil.getInstance();
+
+    const number = phoneUtil.parse(value);
+    const isValid = phoneUtil.isValidNumber(number);
+
+    return isValid ? value : helper.message("Invalid phone number format");
+  } catch (error) {
+    return helper.message("Invalid phone number format");
+  }
+};
+
 //============================= Custom Transform Functions =====================
 export const toLowerCase = (value: string) => value.toLowerCase();
 
@@ -69,13 +85,13 @@ export const customMessages = {
 export const generalFields = {
   email: joi
     .string()
-    .email({ tlds: { allow: ["com", "net", "org", "pro"] } })
+    .email({ tlds: { allow: ["com", "net", "org", "pro", "eg", "sa"] } })
     .trim()
     .messages(customMessages),
 
   password: joi
     .string()
-    .regex(/^(?=.*[A-Z])(?=.*[0-9]).{8,}$/)
+    .pattern(/^(?=.*[a-zA-Z])(?=.*[0-9]).{8,}$/)
     .trim()
     .min(8)
     .max(44)
@@ -89,13 +105,9 @@ export const generalFields = {
 
   phoneNumber: joi
     .string()
-    .pattern(/^(01)[0-2|5]{1}[0-9]{8}$/)
     .trim()
-    .messages({
-      "string.pattern.base":
-        "Invalid Phone Number, must contain 11 digits and start with 01",
-      ...customMessages,
-    }),
+    .custom(validatePhoneNumber)
+    .messages(customMessages),
 
   gender: joi
     .string()

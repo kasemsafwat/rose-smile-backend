@@ -34,12 +34,17 @@ export class CloudinaryService {
     folder: string = "uploads",
     setting: imageOptions = CLOUDINARYOPTIONS.heroBanner
   ): Promise<UploadApiResponse> {
+
+      console.time("⏱️ TOTAL Upload Time");
+      console.time("⏳ Cloudinary Upload");
     try {
       const result = await cloudinary.uploader.upload(filePath, {
         folder,
-        eager: [setting],
+        transformation: [setting],
         resource_type: "image",
       });
+
+          console.timeEnd("⏳ Cloudinary Upload");
 
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, (err) => {
@@ -50,6 +55,7 @@ export class CloudinaryService {
           }
         });
       }
+    console.timeEnd("⏱️ TOTAL Upload Time");
 
       return result as CloudinaryResponse;
     } catch (error) {

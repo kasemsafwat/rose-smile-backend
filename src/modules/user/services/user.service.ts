@@ -4,6 +4,8 @@ import { sanatizeUser } from "../../../utils/sanatize.data";
 import userModel from "../../../DB/models/user.model";
 import bcrypt, { compare } from "bcryptjs";
 import { encrypt } from "../../../utils/crpto";
+import { CloudinaryService } from "../../../utils/cloudinary";
+import { Iuser } from "../../../DB/interfaces/user.interface";
 
 export const profile = async (
   req: Request,
@@ -28,23 +30,36 @@ export const uploadImage = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<void | Response> => {
+  const user = req?.user;
   if (!req.file) {
     return next(new CustomError("No file uploaded", 400));
   }
-
-  const imagePath = `${req.protocol}://${req.get("host")}/uploads/${
-    req.file.filename
-  }`;
 
   const userId = req.user?._id;
   if (!userId) {
     return next(new CustomError("Unauthorized", 401));
   }
 
-  const user = await userModel.findByIdAndUpdate(
+  let publicId, secure_url;
+
+  if (user?.image && user?.image?.id && user?.image?.url) {
+    publicId = user?.image?.id;
+    const { secure_url: newSecureUrl, public_id: newPublicId } =
+      await new CloudinaryService().updateFile(publicId, req.file.path);
+    secure_url = newSecureUrl;
+    publicId = newPublicId;
+  } else {
+    const { secure_url: newSecureUrl, public_id: newPublicId } =
+      await new CloudinaryService().uploadFile(req.file.path);
+
+    secure_url = newSecureUrl;
+    publicId = newPublicId;
+  }
+
+  const updateUser = await userModel.findByIdAndUpdate(
     userId,
-    { avatar: imagePath },
+    { image: { id: publicId, url: secure_url } },
     { new: true }
   );
 
@@ -52,11 +67,11 @@ export const uploadImage = async (
     return next(new CustomError("User not found", 404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "Image uploaded successfully",
     statusCode: 200,
     success: true,
-    user: sanatizeUser(user),
+    user: sanatizeUser(updateUser as Iuser),
   });
 };
 
@@ -64,13 +79,9 @@ export const changePassword = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<void | Response | any> => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.user?._id;
-
-  if (!userId) {
-    return next(new CustomError("Unauthorized", 401));
-  }
 
   const user = await userModel.findById(userId);
   if (!user) {
@@ -82,7 +93,7 @@ export const changePassword = async (
     return next(new CustomError("Current password is incorrect", 400));
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 12);
+  const hashedPassword = await bcrypt.hash(newPassword, 8);
 
   user.password = hashedPassword;
   await user.save();
@@ -94,11 +105,11 @@ export const changePassword = async (
   });
 };
 
-export const userProfile = async (
+export const updateUser = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): Promise<void | Response | any> => {
   const { firstName, lastName, phone } = req.body;
   const user = req.user;
 
@@ -117,7 +128,7 @@ export const userProfile = async (
     return next(new CustomError("User not found during update", 404));
   }
 
-  res.status(200).json({
+  return res.status(200).json({
     message: "User data updated successfully",
     statusCode: 200,
     success: true,
@@ -129,24 +140,11 @@ export const deleteAccount = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void | Response | any> => {
   const userId = req.user?._id;
 
   if (!userId) {
     return next(new CustomError("Unauthorized", 401));
-  }
-
-  const user = await userModel.findById(userId);
-  if (!user) {
-    return res
-      .status(400)
-      .json({ status: "Something went wrong during db action" });
-  }
-
-  if (user.role === "admin") {
-    return res
-      .status(403)
-      .json({ status: "Failed", message: "Admin accounts cannot be deleted" });
   }
 
   await userModel.findByIdAndDelete(userId);
@@ -154,40 +152,10 @@ export const deleteAccount = async (
   res.clearCookie("accessToken");
   res.clearCookie("refreshToken");
 
-  res
-    .status(200)
-    .json({ status: "success", data: "Account deleted successfully" });
-};
-
-export const checkPass = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void | any> => {
-  const { password } = req.body;
-  const userId = req.user?._id;
-
-  if (!userId) {
-    return next(new CustomError("Unauthorized", 401));
-  }
-
-  const user = await userModel.findById(userId);
-  if (!user) {
-    return res
-      .status(400)
-      .json({ status: "Something went wrong during db action" });
-  }
-
-  const chkPassword: boolean = await compare(password, String(user.password));
-
-  if (!chkPassword) {
-    return next(new CustomError("Invalid Password", 404));
-  }
-
   return res.status(200).json({
-    message: "Password is correct",
-    success: true,
+    message: "Account deleted successfully",
     statusCode: 200,
+    success: true,
   });
 };
 

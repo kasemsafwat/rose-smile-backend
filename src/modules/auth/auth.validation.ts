@@ -11,6 +11,7 @@ export const registerSchema = {
       email: generalFields.email.required(),
       password: generalFields.password.required(),
       confirmPassword: joi.valid(joi.ref("password")).required(),
+      phone: generalFields.phoneNumber.optional(),
     })
     .required(),
 };

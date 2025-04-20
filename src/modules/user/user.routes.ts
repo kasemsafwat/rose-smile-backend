@@ -11,8 +11,8 @@ import { asyncHandler } from "../../utils/errorHandling";
 import * as userServices from "./services/user.service";
 import { cokkiesSchema } from "../auth/auth.validation";
 import { isAuth } from "../../middleware/auth";
-import { multerMemory } from "../../utils/multer";
-import { changePassSchema } from "./user.validation";
+import { configureMulter, multerMemory } from "../../utils/multer";
+import { changePassSchema, updateSchema } from "./user.validation";
 
 const router = Router();
 
@@ -26,34 +26,28 @@ router.get(
 router.post(
   "/avatar",
   isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
-  multerMemory().single("avatar"),
+  configureMulter().single("avatar"),
   asyncHandler(userServices.uploadImage)
 );
 
 router.put(
-  "/changePass",
+  "/change/password",
   valid(changePassSchema) as RequestHandler,
   isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.changePassword)
 );
 
 router.put(
-  "/userProfile",
-  isAuth([Roles.User, Roles.SuperAdmin]),
-  asyncHandler(userServices.userProfile)
+  "/update",
+  valid(updateSchema) as RequestHandler,
+  isAuth([Roles.User, Roles.SuperAdmin, Roles.Admin]),
+  asyncHandler(userServices.updateUser)
 );
 
 router.delete(
-  "/:id",
-  isAuth([Roles.SuperAdmin, Roles.User]),
+  "/",
+  isAuth([Roles.Admin, Roles.SuperAdmin, Roles.User]),
   asyncHandler(userServices.deleteAccount)
-);
-
-router.post(
-  "/checkPass",
-  valid(changePassSchema) as RequestHandler,
-  isAuth([Roles.SuperAdmin, Roles.User]),
-  asyncHandler(userServices.checkPass)
 );
 
 router.post(

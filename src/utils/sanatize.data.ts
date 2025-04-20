@@ -13,7 +13,7 @@ export const sanatizeUser = (user: Iuser) => {
       ? decrypt(String(user?.phone), String(process.env.SECRETKEY_CRYPTO))
       : undefined,
     role: user?.role,
-    avatar: user?.avatar,
+    image: user?.image,
   };
 
   return _.omitBy(sanitized, _.isNil);

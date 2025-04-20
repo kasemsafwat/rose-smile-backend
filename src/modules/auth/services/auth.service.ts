@@ -9,24 +9,30 @@ import { emailQueue, addEmailToQueue } from "../../../utils/Email.servise";
 import { cokkiesOptions } from "../../../utils/cookies";
 import fs from "fs";
 import path from "path";
+import { encrypt } from "../../../utils/crpto";
 
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void | any> => {
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, phone } = req.body;
 
   const chkemail = await userModel.findOne({ email }).select("email");
   if (chkemail) return next(new CustomError("Email is Already Exist", 404));
 
   const hashpassword = await bcrypt.hash(password, Number(SALT_ROUND));
 
+  const encryptedPhone = phone
+    ? encrypt(phone, String(process.env.SECRETKEY_CRYPTO))
+    : undefined;
+
   const result = new userModel({
     firstName,
     lastName,
     email,
     password: hashpassword,
+    phone: encryptedPhone,
   });
 
   const response = await result.save();

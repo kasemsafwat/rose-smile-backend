@@ -21,7 +21,7 @@ const userSchema = new Schema<Iuser>(
       type: String,
       required: true,
       minlength: [6, "email Must be at least 6, got {VALUE}"],
-      maxlength: [30, "email Must be at most 30, got {VALUE}"],
+      maxlength: [70, "email Must be at most 30, got {VALUE}"],
       unique: true,
       index: 1,
       match: [
@@ -51,11 +51,16 @@ const userSchema = new Schema<Iuser>(
       type: Boolean,
       default: false,
     },
-    avatar: {
-      type: String,
+    image: {
+      type: {
+        id: String,
+        url: {
+          type: String,
+          required: false,
+          default: "",
+        },
+      },
       required: false,
-      default:
-        "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg",
     },
   },
   { timestamps: true }

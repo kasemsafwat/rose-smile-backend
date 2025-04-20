@@ -16,5 +16,8 @@ export interface Iuser extends Document {
   role?: Roles;
   isConfirmed?: boolean;
   isOnline?: boolean;
-  avatar?: string;
+  image?: {
+    id?: string;
+    url?: string;
+  };
 }

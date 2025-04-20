@@ -25,6 +25,7 @@ declare global {
 export const isAuth = (roles: Array<Roles>) => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction) => {
+      console.time("⏱️ isAuth");
       try {
         const { accessToken: accessTokenPrefix, refreshToken } = req.cookies;
 
@@ -66,6 +67,7 @@ export const isAuth = (roles: Array<Roles>) => {
           }
 
           req.user = user as Iuser;
+          console.timeEnd("⏱️ isAuth");
           return next();
         }
 

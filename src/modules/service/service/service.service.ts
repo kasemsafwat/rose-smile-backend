@@ -15,7 +15,7 @@ export const createService = async (
   next: NextFunction
 ) => {
   const { title, desc, sectionId } = req.body;
-
+  console.time("⏱️ createService");
   if (!req?.file) {
     return next(new CustomError("No files uploaded", 400));
   }
@@ -28,7 +28,7 @@ export const createService = async (
     desc,
     sectionId: section._id,
   });
-
+  console.timeEnd("⏱️ createService");
   const { secure_url, public_id } = await new CloudinaryService().uploadFile(
     req.file.path,
     `service/${service._id}`

@@ -18,7 +18,7 @@ const router = Router();
 // create a new service
 router.post(
   "/",
-  configureMulter(1024 * 1024 * 5, FileType.Images).single("image"),
+  configureMulter(1024 * 1024 * 7, FileType.Images).single("image"),
   valid(addServiceSchema) as RequestHandler,
   isAuth([Roles.Admin, Roles.SuperAdmin]),
   asyncHandler(serviceController.createService)
@@ -35,7 +35,7 @@ router.put(
 // update a service image
 router.put(
   "/image/:id",
-  configureMulter(1024 * 1024 * 5, FileType.Images).single("image"),
+  configureMulter(1024 * 1024 * 7, FileType.Images).single("image"),
   valid(updateServiceImageSchema) as RequestHandler,
   isAuth([Roles.Admin, Roles.SuperAdmin]),
   asyncHandler(serviceController.updateServiceImage)
