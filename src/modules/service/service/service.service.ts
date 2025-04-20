@@ -169,7 +169,14 @@ export const deleteService = async (
 
 // search in sections
 const allowSearchFields = ["title", "desc"];
-const defaultFields = ["title", "desc", "image", "section"];
+const defaultFields = [
+  "title",
+  "desc",
+  "image",
+  "section",
+  "createdAt",
+  "updatedAt",
+];
 export const getServices = async (
   req: Request,
   res: Response,

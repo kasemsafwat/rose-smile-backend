@@ -78,7 +78,7 @@ export const getsectionById = async (
 
 // search in sections
 const allowSearchFields = ["title", "desc"];
-const defaultFields = ["title", "desc", "image"];
+const defaultFields = ["title", "desc", "image", "createdAt", "updatedAt"];
 export const searchsection = async (
   req: Request,
   res: Response,

@@ -74,6 +74,8 @@ const defaultFields = [
   "reference",
   "section",
   "service",
+  "createdAt",
+  ""
 ];
 
 //get all offers
