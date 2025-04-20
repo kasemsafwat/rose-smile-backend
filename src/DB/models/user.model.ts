@@ -57,7 +57,6 @@ const userSchema = new Schema<Iuser>(
         url: {
           type: String,
           required: false,
-          default: "",
         },
       },
       required: false,
