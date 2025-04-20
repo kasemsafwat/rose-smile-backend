@@ -131,3 +131,8 @@ export const CLOUDINARYOPTIONS = {
     flags: "progressive",
   } as imageOptions,
 };
+
+export const GOOGLE_SHEET = {
+  CLIENT_EMAIL: process.env.GOOGLE_SHEET_CLIENT_EMAIL,
+  PRIVATE_KEY: process.env.GOOGLE_SHEET_PRIVATE_KEY,
+};

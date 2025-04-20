@@ -4,7 +4,7 @@ import { offerModel } from "../../../DB/models/offers.model";
 import { CustomError } from "../../../utils/errorHandling";
 import sectionModel from "../../../DB/models/section.model";
 import serviceModel from "../../../DB/models/service.model";
-import { CloudinaryService } from "../../../utils/cloudinary";
+import { cloudinaryInstance, CloudinaryService } from "../../../utils/cloudinary";
 import ApiPipeline from "../../../utils/apiFeacture";
 
 //create offer
@@ -39,7 +39,7 @@ export const createOffer = async (
     type,
   });
 
-  const { secure_url, public_id } = await new CloudinaryService().uploadFile(
+  const { secure_url, public_id } = await cloudinaryInstance.uploadFile(
     req.file.path,
     `offers/${offerSchema._id}`
   );
@@ -49,7 +49,7 @@ export const createOffer = async (
   const offer = await offerSchema.save();
 
   if (!offer) {
-    await new CloudinaryService().deleteFile(public_id);
+    await cloudinaryInstance.deleteFile(public_id);
     return next(new CustomError("Offer not created", 400));
   }
 
@@ -108,9 +108,7 @@ export const getOffers = async (
   const updatedOffers = await Promise.all(
     offers.map(async (offer) => {
       if (offer.image) {
-        const versions = await new CloudinaryService().imageVersions(
-          offer.image.id
-        );
+        const versions = await cloudinaryInstance.imageVersions(offer.image.id);
         return { ...offer, image: { ...offer.image, ...versions } };
       }
       return offer;
@@ -140,7 +138,7 @@ export const getOfferById = async (
     return next(new CustomError("Offer not found", 404));
   }
 
-  const versions = await new CloudinaryService().imageVersions(offer.image?.id);
+  const versions = await cloudinaryInstance.imageVersions(offer.image?.id);
   offer.image = { ...offer.image, ...versions };
 
   return res.status(200).json({
@@ -216,7 +214,7 @@ export const updateOfferImage = async (
     return next(new CustomError("Offer not found", 404));
   }
 
-  await new CloudinaryService().updateFile(offer.image?.id, req.file.path);
+  await cloudinaryInstance.updateFile(offer.image?.id, req.file.path);
 
   return res.status(200).json({
     message: "Offer image updated successfully",
@@ -239,7 +237,7 @@ export const deleteOffer = async (
     return next(new CustomError("Offer not found", 404));
   }
 
-  await new CloudinaryService().deleteFile(offer.image?.id);
+  await cloudinaryInstance.deleteFile(offer.image?.id);
 
   return res.status(200).json({
     message: "Offer deleted successfully",

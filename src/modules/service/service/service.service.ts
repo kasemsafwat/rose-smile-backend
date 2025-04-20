@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import serviceModel from "../../../DB/models/service.model";
 import { CustomError } from "../../../utils/errorHandling";
-import {
-  CloudinaryResponse,
-  CloudinaryService,
-} from "../../../utils/cloudinary";
+import { cloudinaryInstance } from "../../../utils/cloudinary";
 import sectionModel from "../../../DB/models/section.model";
 import ApiPipeline from "../../../utils/apiFeacture";
 import mongoose from "mongoose";
@@ -29,7 +26,7 @@ export const createService = async (
     sectionId: section._id,
   });
   console.timeEnd("⏱️ createService");
-  const { secure_url, public_id } = await new CloudinaryService().uploadFile(
+  const { secure_url, public_id } = await cloudinaryInstance.uploadFile(
     req.file.path,
     `service/${service._id}`
   );
@@ -39,7 +36,7 @@ export const createService = async (
   const savedService = await service.save();
 
   if (!savedService) {
-    await new CloudinaryService().deleteFile(public_id);
+    await cloudinaryInstance.deleteFile(public_id);
     return next(new CustomError("Failed to create service", 500));
   }
 
@@ -68,9 +65,7 @@ export const getServiceById = async (
   // if service not found
   if (!service) return next(new CustomError("Service not found", 404));
 
-  const versions = await new CloudinaryService().imageVersions(
-    service.image?.id
-  );
+  const versions = await cloudinaryInstance.imageVersions(service.image?.id);
   service.image = { ...service.image, ...versions };
 
   //response
@@ -135,7 +130,7 @@ export const updateServiceImage = async (
   const findService = await serviceModel.findById(id);
   if (!findService) return next(new CustomError("Service not found", 404));
 
-  const { secure_url, public_id } = await new CloudinaryService().updateFile(
+  const { secure_url, public_id } = await cloudinaryInstance.updateFile(
     findService.image.id,
     req.file?.path
   );
@@ -163,7 +158,7 @@ export const deleteService = async (
     return next(new CustomError("Service not found", 404));
   }
 
-  await new CloudinaryService().deleteFile(service.image.id);
+  await cloudinaryInstance.deleteFile(service.image.id);
 
   return res.status(200).json({
     message: "Service deleted successfully",
@@ -223,7 +218,7 @@ export const getServices = async (
   const updatedServices = await Promise.all(
     services.map(async (service) => {
       if (service.image) {
-        const versions = await new CloudinaryService().imageVersions(
+        const versions = await cloudinaryInstance.imageVersions(
           service.image.id
         );
         return { ...service, image: { ...service.image, ...versions } };
@@ -260,7 +255,7 @@ export const getServices = async (
 
 //   // upload files to cloudinary
 //   const imagesPromises = (req.files as Express.Multer.File[]).map((file) => {
-//     return new CloudinaryService().uploadFile(
+//     return cloudinaryInstance.uploadFile(
 //       file.path,
 //       `service/${findService._id}`
 //     );
@@ -314,7 +309,7 @@ export const getServices = async (
 //   if (!findService) return next(new CustomError("Service not found", 404));
 
 //   // upload file to cloudinary
-//   const response = await new CloudinaryService().updateFile(
+//   const response = await cloudinaryInstance.updateFile(
 //     imageId,
 //     req.file.path
 //   );
@@ -362,7 +357,7 @@ export const getServices = async (
 //   if (!findService) return next(new CustomError("Service not found", 404));
 
 //   // delete images
-//   const deleteImages = await new CloudinaryService().deleteMultipleFiles(
+//   const deleteImages = await cloudinaryInstance.deleteMultipleFiles(
 //     imageIds
 //   );
 

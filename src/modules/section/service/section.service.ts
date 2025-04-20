@@ -1,7 +1,10 @@
 import fs from "fs";
 import { NextFunction, Request, Response } from "express";
 import { CustomError } from "../../../utils/errorHandling";
-import { CloudinaryService } from "../../../utils/cloudinary";
+import {
+  cloudinaryInstance,
+  CloudinaryService,
+} from "../../../utils/cloudinary";
 import sectionModel from "../../../DB/models/section.model";
 import { CLOUDINARYOPTIONS } from "../../../config/env";
 import ApiPipeline from "../../../utils/apiFeacture";
@@ -23,7 +26,7 @@ export const addsection = async (
     desc,
   });
 
-  const response = await new CloudinaryService().uploadFile(
+  const response = await cloudinaryInstance.uploadFile(
     req.file.path,
     `section/${section._id}`
   );
@@ -62,9 +65,7 @@ export const getsectionById = async (
     return next(new CustomError("section not found", 404));
   }
 
-  const versions = await new CloudinaryService().imageVersions(
-    section.image?.id
-  );
+  const versions = await cloudinaryInstance.imageVersions(section.image?.id);
   section.image = { ...section.image, ...versions };
 
   return res.status(200).json({
@@ -109,7 +110,7 @@ export const searchsection = async (
   const updatedSections = await Promise.all(
     sections.map(async (section) => {
       if (section.image) {
-        const versions = await new CloudinaryService().imageVersions(
+        const versions = await cloudinaryInstance.imageVersions(
           section.image.id
         );
         return { ...section, image: { ...section.image, ...versions } };
@@ -148,7 +149,7 @@ export const updatesection = async (
       return next(new CustomError("section not found", 404));
     }
     const { metadata, secure_url, public_id } =
-      await new CloudinaryService().updateFile(section.image.id, req.file.path);
+      await cloudinaryInstance.updateFile(section.image.id, req.file.path);
     const image: any = {};
     image.imageUrl = secure_url;
     image.id = public_id;
@@ -192,7 +193,7 @@ export const deletesection = async (
     return next(new CustomError("section not found", 404));
   }
 
-  await new CloudinaryService().deleteFile(section.image.id).then((result) => {
+  await cloudinaryInstance.deleteFile(section.image.id).then((result) => {
     console.log("deleted successfully", result);
   });
 

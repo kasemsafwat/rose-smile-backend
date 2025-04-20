@@ -21,6 +21,8 @@ export interface CloudinaryResponse extends UploadApiResponse {
 }
 
 export class CloudinaryService {
+  private static instance: CloudinaryService;
+
   constructor() {
     cloudinary.config({
       cloud_name: CLOUDINARY.CLOUD_NAME,
@@ -29,14 +31,20 @@ export class CloudinaryService {
     });
   }
 
+  public static getInstance(): CloudinaryService {
+    if (!CloudinaryService.instance) {
+      CloudinaryService.instance = new CloudinaryService();
+    }
+    return CloudinaryService.instance;
+  }
+
   async uploadFile(
     filePath: string,
     folder: string = "uploads",
     setting: imageOptions = CLOUDINARYOPTIONS.heroBanner
   ): Promise<UploadApiResponse> {
-
-      console.time("⏱️ TOTAL Upload Time");
-      console.time("⏳ Cloudinary Upload");
+    console.time("⏱️ TOTAL Upload Time");
+    console.time("⏳ Cloudinary Upload");
     try {
       const result = await cloudinary.uploader.upload(filePath, {
         folder,
@@ -44,7 +52,7 @@ export class CloudinaryService {
         resource_type: "image",
       });
 
-          console.timeEnd("⏳ Cloudinary Upload");
+      console.timeEnd("⏳ Cloudinary Upload");
 
       if (fs.existsSync(filePath)) {
         fs.unlink(filePath, (err) => {
@@ -55,7 +63,7 @@ export class CloudinaryService {
           }
         });
       }
-    console.timeEnd("⏱️ TOTAL Upload Time");
+      console.timeEnd("⏱️ TOTAL Upload Time");
 
       return result as CloudinaryResponse;
     } catch (error) {
@@ -139,3 +147,5 @@ export class CloudinaryService {
     });
   }
 }
+
+export const cloudinaryInstance = CloudinaryService.getInstance();

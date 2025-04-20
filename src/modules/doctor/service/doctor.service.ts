@@ -1,15 +1,15 @@
-import { NextFunction, Request, Response } from 'express';
-import { CustomError } from '../../../utils/errorHandling';
-import { doctorModel } from '../../../DB/models/doctor.model';
-import { CloudinaryService } from '../../../utils/cloudinary';
-import ApiPipeline from '../../../utils/apiFeacture';
+import { NextFunction, Request, Response } from "express";
+import { CustomError } from "../../../utils/errorHandling";
+import { doctorModel } from "../../../DB/models/doctor.model";
+import { cloudinaryInstance } from "../../../utils/cloudinary";
+import ApiPipeline from "../../../utils/apiFeacture";
 
 export default class Doctor {
   static async addDoctor(req: Request, res: Response, next: NextFunction) {
     const { name, phone_whatsapp, specialization, description } = req.body;
 
     if (!req?.file) {
-      return next(new CustomError('No files uploaded', 400));
+      return next(new CustomError("No files uploaded", 400));
     }
 
     const doctor = new doctorModel({
@@ -19,7 +19,7 @@ export default class Doctor {
       description,
     });
 
-    const { secure_url, public_id } = await new CloudinaryService().uploadFile(
+    const { secure_url, public_id } = await cloudinaryInstance.uploadFile(
       req.file.path,
       `doctor/${doctor._id}`
     );
@@ -27,11 +27,11 @@ export default class Doctor {
     doctor.image = { url: secure_url, id: public_id };
     const savedDoctor = await doctor.save();
     if (!savedDoctor) {
-      await new CloudinaryService().deleteFile(public_id);
-      return next(new CustomError('Failed to create doctor', 500));
+      await cloudinaryInstance.deleteFile(public_id);
+      return next(new CustomError("Failed to create doctor", 500));
     }
     return res.status(201).json({
-      message: 'Doctor created successfully',
+      message: "Doctor created successfully",
       success: true,
       statusCode: 201,
       doctor: savedDoctor,
@@ -44,12 +44,12 @@ export default class Doctor {
 
     // Check if the request body is empty
     if (!Object.keys(req.body).length) {
-      return next(new CustomError('No update data provided', 400));
+      return next(new CustomError("No update data provided", 400));
     }
 
     const findDoctor = await doctorModel.findById(doctorId);
     if (!findDoctor) {
-      return next(new CustomError('Doctor not found', 404));
+      return next(new CustomError("Doctor not found", 404));
     }
 
     const updateDoctor: any = {};
@@ -65,7 +65,7 @@ export default class Doctor {
     );
 
     return res.status(200).json({
-      message: 'Doctor updated successfully',
+      message: "Doctor updated successfully",
       success: true,
       statusCode: 200,
       doctor,
@@ -82,14 +82,14 @@ export default class Doctor {
     const doctor = await doctorModel.findById(doctorId);
 
     if (!doctor) {
-      return next(new CustomError('Doctor not found', 404));
+      return next(new CustomError("Doctor not found", 404));
     }
 
     if (!req?.file) {
-      return next(new CustomError('No files uploaded', 400));
+      return next(new CustomError("No files uploaded", 400));
     }
 
-    const { secure_url, public_id } = await new CloudinaryService().uploadFile(
+    const { secure_url, public_id } = await cloudinaryInstance.uploadFile(
       req.file.path,
       `doctor/${doctorId}`
     );
@@ -99,7 +99,7 @@ export default class Doctor {
     await doctor.save();
 
     return res.status(200).json({
-      message: 'Doctor image updated successfully',
+      message: "Doctor image updated successfully",
       success: true,
       statusCode: 200,
       doctor,
@@ -111,25 +111,25 @@ export default class Doctor {
 
     const doctor = await doctorModel.findByIdAndDelete(doctorId);
     if (!doctor) {
-      return next(new CustomError('Doctor not found', 404));
+      return next(new CustomError("Doctor not found", 404));
     }
 
-    await new CloudinaryService().deleteFile(doctor.image.id);
+    await cloudinaryInstance.deleteFile(doctor.image.id);
 
     return res.status(200).json({
-      message: 'Doctor deleted successfully',
+      message: "Doctor deleted successfully",
       success: true,
       statusCode: 200,
     });
   }
 
-  static allowSearchFields = ['name', 'specialization'];
+  static allowSearchFields = ["name", "specialization"];
   static defaultFields = [
-    'name',
-    'phone_whatsapp',
-    'image',
-    'specialization',
-    'description',
+    "name",
+    "phone_whatsapp",
+    "image",
+    "specialization",
+    "description",
   ];
   static async getAllDoctors(req: Request, res: Response, next: NextFunction) {
     const { page, size, search, sort, select } = req.query;
@@ -137,15 +137,15 @@ export default class Doctor {
     const pipeline = new ApiPipeline()
       .match({
         fields: Doctor.allowSearchFields,
-        search: search?.toString() || '',
-        op: '$or',
+        search: search?.toString() || "",
+        op: "$or",
       })
-      .sort(sort?.toString() || '')
+      .sort(sort?.toString() || "")
       .paginate(Number(page) || 1, Number(size) || 100)
       .projection({
         allowFields: Doctor.defaultFields,
         defaultFields: Doctor.defaultFields,
-        select: select?.toString() || '',
+        select: select?.toString() || "",
       })
       .build();
 
@@ -155,7 +155,7 @@ export default class Doctor {
     ]);
 
     return res.status(200).json({
-      message: 'Doctors retrieved successfully',
+      message: "Doctors retrieved successfully",
       success: true,
       statusCode: 200,
       totalDoctors: total,
@@ -169,11 +169,11 @@ export default class Doctor {
 
     const doctor = await doctorModel.findById(doctorId);
     if (!doctor) {
-      return next(new CustomError('Doctor not found', 404));
+      return next(new CustomError("Doctor not found", 404));
     }
 
     return res.status(200).json({
-      message: 'Doctor retrieved successfully',
+      message: "Doctor retrieved successfully",
       success: true,
       statusCode: 200,
       doctor,

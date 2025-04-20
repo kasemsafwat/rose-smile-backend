@@ -4,7 +4,7 @@ import { sanatizeUser } from "../../../utils/sanatize.data";
 import userModel from "../../../DB/models/user.model";
 import bcrypt, { compare } from "bcryptjs";
 import { encrypt } from "../../../utils/crpto";
-import { CloudinaryService } from "../../../utils/cloudinary";
+import { cloudinaryInstance } from "../../../utils/cloudinary";
 import { Iuser } from "../../../DB/interfaces/user.interface";
 
 export const profile = async (
@@ -46,12 +46,12 @@ export const uploadImage = async (
   if (user?.image && user?.image?.id && user?.image?.url) {
     publicId = user?.image?.id;
     const { secure_url: newSecureUrl, public_id: newPublicId } =
-      await new CloudinaryService().updateFile(publicId, req.file.path);
+      await cloudinaryInstance.updateFile(publicId, req.file.path);
     secure_url = newSecureUrl;
     publicId = newPublicId;
   } else {
     const { secure_url: newSecureUrl, public_id: newPublicId } =
-      await new CloudinaryService().uploadFile(req.file.path);
+      await cloudinaryInstance.uploadFile(req.file.path);
 
     secure_url = newSecureUrl;
     publicId = newPublicId;
