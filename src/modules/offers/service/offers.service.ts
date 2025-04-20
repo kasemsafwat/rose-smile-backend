@@ -4,7 +4,10 @@ import { offerModel } from "../../../DB/models/offers.model";
 import { CustomError } from "../../../utils/errorHandling";
 import sectionModel from "../../../DB/models/section.model";
 import serviceModel from "../../../DB/models/service.model";
-import { cloudinaryInstance, CloudinaryService } from "../../../utils/cloudinary";
+import {
+  cloudinaryInstance,
+  CloudinaryService,
+} from "../../../utils/cloudinary";
 import ApiPipeline from "../../../utils/apiFeacture";
 
 //create offer
@@ -75,7 +78,7 @@ const defaultFields = [
   "section",
   "service",
   "createdAt",
-  ""
+  "updatedAt",
 ];
 
 //get all offers
