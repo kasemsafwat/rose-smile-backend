@@ -12,6 +12,7 @@ export const addFormSchema = {
 export const addCommentSchema = {
   body: joi.object({
     comment: joi.string().required(),
+    status: joi.string().valid('pending', 'absent', 'completed').required(),
   }),
 
   params: joi.object({
@@ -26,6 +27,7 @@ export const updateFormSchema = {
     service: joi.string().optional(),
     city: joi.string().optional(),
     comment: joi.string().optional(),
+    status: joi.string().valid('pending', 'absent', 'completed').required(),
   }),
   params: joi.object({
     id: joi.string().required(),
