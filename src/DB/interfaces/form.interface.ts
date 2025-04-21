@@ -6,4 +6,6 @@ export interface Iform extends Document {
   service?: Types.ObjectId;
   city?: string;
   comment?: string;
+  status?: string;
+  editedBy?: Types.ObjectId;
 }
