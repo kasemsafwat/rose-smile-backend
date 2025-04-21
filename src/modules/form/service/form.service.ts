@@ -26,9 +26,14 @@ export default class Form {
     });
   }
 
-  static async addComment(req: Request, res: Response, next: NextFunction) {
+  static async updateCommentAndStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const { id } = req.params;
-    const { comment } = req.body;
+    const userId = req?.user?._id;
+    const { comment, status } = req.body;
 
     const form = await formModel.findById(id);
     if (!form) {
@@ -36,6 +41,9 @@ export default class Form {
     }
 
     form.comment = comment;
+    form.status = status;
+    form.editedBy = userId;
+
     const updatedForm = await form.save();
     if (!updatedForm) {
       return next(new CustomError('Failed to update form', 500));
@@ -51,7 +59,8 @@ export default class Form {
 
   static async updateForm(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
-    const { name, phone, service, city, comment } = req.body;
+    const userId = req?.user?._id;
+    const { name, phone, service, city, comment, status } = req.body;
 
     // Check if the request body is empty
     if (!Object.keys(req.body).length) {
@@ -69,6 +78,8 @@ export default class Form {
     if (service) updateForm.service = service;
     if (city) updateForm.city = city;
     if (comment) updateForm.comment = comment;
+    if (status) updateForm.status = status;
+    if (userId) updateForm.editedBy = userId;
 
     const updatedForm = await formModel.findByIdAndUpdate(
       id,
@@ -106,7 +117,10 @@ export default class Form {
   static async getFormById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const form = await formModel.findById(id).populate('service', 'title');
+    const form = await formModel
+      .findById(id)
+      .populate('service', 'title')
+      .populate('editedBy', 'firstName lastName');
 
     if (!form) {
       return next(new CustomError('Form not found', 404));
@@ -121,7 +135,15 @@ export default class Form {
   }
 
   static allowSearchFields = ['name', 'phone', 'service', 'city'];
-  static defaultFields = ['name', 'phone', 'service', 'city', 'comment'];
+  static defaultFields = [
+    'name',
+    'phone',
+    'service',
+    'city',
+    'comment',
+    'status',
+    'editedBy',
+  ];
   static async getAllForms(req: Request, res: Response, next: NextFunction) {
     const { page, size, search, sort, select } = req.query;
 
@@ -143,6 +165,19 @@ export default class Form {
         },
         {
           title: 1,
+        }
+      )
+      .lookUp(
+        {
+          from: 'users',
+          localField: 'editedBy',
+          foreignField: '_id',
+          as: 'editedBy',
+          isArray: false,
+        },
+        {
+          firstName: 1,
+          lastName: 1,
         }
       )
       .projection({

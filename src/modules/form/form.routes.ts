@@ -22,7 +22,7 @@ formRouter.patch(
   '/:id',
   isAuth([Roles.SuperAdmin, Roles.Admin]),
   valid(addCommentSchema) as RequestHandler,
-  asyncHandler(Form.addComment)
+  asyncHandler(Form.updateCommentAndStatus)
 );
 
 formRouter.put(
