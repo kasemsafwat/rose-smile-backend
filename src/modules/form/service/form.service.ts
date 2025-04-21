@@ -106,7 +106,7 @@ export default class Form {
   static async getFormById(req: Request, res: Response, next: NextFunction) {
     const { id } = req.params;
 
-    const form = await formModel.findById(id);
+    const form = await formModel.findById(id).populate('service', 'title');
 
     if (!form) {
       return next(new CustomError('Form not found', 404));
@@ -133,6 +133,18 @@ export default class Form {
       })
       .sort(sort?.toString() || '')
       .paginate(Number(page) || 1, Number(size) || 100)
+      .lookUp(
+        {
+          from: 'services',
+          localField: 'service',
+          foreignField: '_id',
+          as: 'service',
+          isArray: false,
+        },
+        {
+          title: 1,
+        }
+      )
       .projection({
         allowFields: Form.defaultFields,
         defaultFields: Form.defaultFields,
