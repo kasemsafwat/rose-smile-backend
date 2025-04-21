@@ -8,6 +8,12 @@ const formSchema = new Schema<Iform>(
     service: { type: Schema.Types.ObjectId, ref: 'service', required: true },
     city: { type: String, required: true },
     comment: { type: String },
+    status: {
+      type: String,
+      enum: ['pending', 'absent', 'completed'],
+      default: 'pending',
+    },
+    editedBy: { type: Schema.Types.ObjectId, ref: 'user' },
   },
   { timestamps: true }
 );
